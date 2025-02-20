@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק התשובות הלא נכונות</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* חוסם סימון טקסט והעתקה */
+        body, html {
+            user-select: none;
+        }
+
+        /* חוסם קליק ימני */
+        body {
+            -webkit-touch-callout: none;
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: gray;
+            text-align: center;
+        }
+    </style>
+
+    <script>
+        // חוסם קליק ימני
+        document.addEventListener("contextmenu", function(e) {
+            e.preventDefault();
+        });
+
+        // חוסם שימוש ב-F12, Ctrl+U וצירופי מקשים שמאפשרים גישה לקוד
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "F12" || 
+                (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
+                (e.ctrlKey && e.key === "U")) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="category-screen">
+        <h1>בחר קטגוריה</h1>
+        <button class="category-btn" onclick="startGame('sport')">
+            <i class="fas fa-futbol"></i> ספורט
+        </button>
+        <button class="category-btn" onclick="startGame('history')">
+            <i class="fas fa-landmark"></i> היסטוריה
+        </button>
+        <button class="category-btn" onclick="startGame('bible')">
+            <i class="fas fa-book"></i> תנ"ך
+        </button>
+        <button class="category-btn" onclick="startGame('science')">
+            <i class="fas fa-flask"></i> מדע וטכנולוגיה
+        </button>
+        <button class="category-btn" onclick="startGame('culture')">
+            <i class="fas fa-music"></i> תרבות ופנאי
+        </button>
+        <button class="category-btn" onclick="showTimedGameForm()">
+            <i class="fas fa-clock"></i> משחק נגד הזמן
+        </button>
+
+        <!-- בחר אם אתה בוחן או נבחן -->
+        <div id="role-selection">
+            <h2>בחר תפקיד:</h2>
+            <button onclick="setRole('examiner')">אני בוחן</button>
+            <button onclick="setRole('student')">אני נבחן</button>
+        </div>
+
+        <!-- טופס להזנת שמות השחקנים -->
+        <div id="player-names-form" style="display: none;">
+            <h2>הזן שמות שחקנים:</h2>
+            <textarea id="player-names-input" rows="4" cols="50" placeholder="הכנס שמות מופרדים בפסיקים (לדוגמה: דוד, משה, שרה)"></textarea>
+            <button onclick="submitPlayerNames()">אשר שמות והתחל משחק</button>
+        </div>
+
+        <!-- טופס לבחירת זמן המשחק -->
+        <div id="timed-game-form" style="display: none;">
+            <h2>בחר מספר שאלות:</h2>
+            <label>
+                <input type="radio" name="question-count" value="30"> 30 שאלות (5 שניות לכל שאלה)
+            </label>
+            <label>
+                <input type="radio" name="question-count" value="15"> 15 שאלות (5 שניות לכל שאלה)
+            </label>
+            <label>
+                <input type="radio" name="question-count" value="25"> 25 שאלות (5 שניות לכל שאלה)
+            </label>
+            <button onclick="submitTimedGame()">אשר והתחל משחק</button>
+        </div>
+
+        <!-- כפתור חזרה לתפריט הראשי -->
+        <button id="back-btn" class="back-btn" onclick="goToMainMenu()">
+            <i class="fas fa-arrow-left"></i> חזרה לתפריט הראשי
+        </button>
+    </div>
+
+    <div id="game-screen" style="display: none;">
+        <h1 id="question" class="question-animation">שאלה</h1>
+        <div id="answers" class="answers-animation"></div>
+        <div id="timer" style="display: none;">זמן נותר: </div>
+        <div id="scoreboard" style="display: none;">
+            <h2>לוח תוצאות</h2>
+            <ul id="score-list"></ul>
+        </div>
+
+        <!-- כפתור חזרה לתפריט הראשי מתוך המשחק -->
+        <button class="back-btn" onclick="goToMainMenu()">
+            <i class="fas fa-arrow-left"></i> חזרה לתפריט הראשי
+        </button>
+
+        <!-- תגיות אודיו -->
+        <audio id="victory-sound" src="victory.mp3"></audio>
+        <audio id="background-music" src="background-music.mp3" loop></audio>
+        <button onclick="toggleMusic()">⏯️ הפעל/הפסק מוזיקה</button>
+    </div>
+
+    <footer>
+        &copy; כל הזכויות שמורות,לעידן מוסכייב <span id="year"></span> | אין להעתיק, להפיץ או לשכפל את המשחק ללא אישור בכתב.
+    </footer>
+
+    <script>
+        function goToMainMenu() {
+            window.location.href = 'index.html'; // החלף בנתיב לתפריט הראשי שלך
+        }
+
+        function toggleMusic() {
+            let music = document.getElementById("background-music");
+            if (music.paused) {
+                music.play();
+            } else {
+                music.pause();
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // עדכון השנה הנוכחית בהצהרת זכויות יוצרים
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

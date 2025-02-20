@@ -1,0 +1,193 @@
+:root {
+    --primary-color: #6a11cb;
+    --secondary-color: #2575fc;
+    --text-light: #fff;
+    --button-radius: 12px;
+    --font-family: 'Poppins', sans-serif;
+}
+
+/* עיצוב הרקע */
+body {
+    font-family: var(--font-family);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--text-light);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* מסך הקטגוריות */
+#category-screen {
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* כותרת המשחק */
+#category-screen h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+/* כפתורי הקטגוריות */
+.category-btn, #role-selection button {
+    background: linear-gradient(135deg, #ff7eb3, #ff758c);
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    padding: 15px 30px;
+    margin: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 15px rgba(255, 117, 140, 0.4);
+    display: inline-block;
+}
+
+/* אפקט Hover */
+.category-btn:hover, #role-selection button:hover {
+    transform: scale(1.08);
+    background: linear-gradient(135deg, #ff758c, #ff7eb3);
+    box-shadow: 0 6px 20px rgba(255, 117, 140, 0.6);
+}
+
+/* תצוגת בחירת תפקיד */
+#role-selection {
+    margin-top: 20px;
+}
+
+/* כפתור חזרה לתפריט הראשי */
+.back-btn {
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 25px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 15px rgba(0, 114, 255, 0.4);
+}
+
+/* אפקט Hover לכפתור חזרה */
+.back-btn:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #0072ff, #00c6ff);
+    box-shadow: 0 6px 20px rgba(0, 114, 255, 0.6);
+}
+
+/* אנימציית הופעה */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* סגנון לשאלות */
+.question-animation {
+    font-size: 32px;
+    animation: slideDown 0.5s ease-in-out;
+    margin-bottom: 20px;
+}
+
+/* אנימציה לשאלות */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* סגנון לתשובות */
+.answers-animation .answer-option {
+    font-size: 22px;
+    background: linear-gradient(135deg, #ffce47, #ffce87);
+    color: black;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    padding: 15px 25px;
+    margin: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 15px rgba(255, 206, 135, 0.4);
+    display: inline-block;
+    animation: slideIn 0.5s ease-in-out;
+}
+
+/* אנימציה לתשובות */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* אפקט Hover לתשובות */
+.answers-animation .answer-option:hover {
+    transform: scale(1.08);
+    background: linear-gradient(135deg, #ffce87, #ffce47);
+    box-shadow: 0 6px 20px rgba(255, 206, 135, 0.6);
+}
+
+/* רספונסיביות למסכים קטנים */
+@media (max-width: 768px) {
+    #category-screen h1 {
+        font-size: 28px;
+    }
+
+    .category-btn, #role-selection button {
+        font-size: 18px;
+        padding: 12px 25px;
+    }
+    
+    .back-btn {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
+    
+    .question-animation {
+        font-size: 28px;
+    }
+
+    .answers-animation .answer-option {
+        font-size: 18px;
+        padding: 12px 20px;
+    }
+    footer {
+        position: fixed;  /* מקבע את הפוטר בתחתית */
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);  /* ממרכז את הטקסט */
+        width: 100%;
+        text-align: center;
+        background-color: #333;
+        color: white;
+        padding: 10px 0;
+        font-size: 14px;
+        font-family: Arial, sans-serif;
+    }
+}

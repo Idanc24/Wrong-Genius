@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>משחק התשובות השגויות</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* כאן כל קוד ה-CSS כפי שסיפקת */
+    :root {<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>משחק התשובות השגויות</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* כאן כל קוד ה-CSS כפי שסיפקת */
+    :root {
+      --primary-color: #6a11cb;
+      --secondary-color: #2575fc;
+      --text-dark: #333;
+      --text-light: #fff;
+      --success-color: #4caf50;
+      --error-color: #f44336;
+      --warning-color: #ff9800;
+      --background-light: #f0f8ff;
+      --card-background: #fff;
+      --transition-speed: 0.3s;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--background-light);
+      background-image: linear-gradient(45deg, rgba(106, 17, 203, 0.05), rgba(37, 117, 252, 0.05));
+      margin: 0; padding: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; direction: rtl; overflow-x: hidden; color: var(--text-dark);
+    }
+    /* שאר קוד ה-CSS (העתק את הקוד שסיפקת) */
+    /* ... */
+  </style>
+</head>
+<body>
+  <!-- קנבס לאפקט קונפטי -->
+  <canvas id="confetti-canvas"></canvas>
+  
+  <div id="refreshing">טוען שאלות חדשות...</div>
+  
+  <div id="game-container">
+    <!-- שליטה במוסיקה -->
+    <div id="sound-controls">
+      <button class="sound-btn" id="toggle-music">
+        <i class="fas fa-volume-up"></i>
+      </button>
+    </div>
+    
+    <!-- כותרת המשחק -->
+    <div id="header">
+      <h1 id="game-title">משחק התשובות השגויות</h1>
+      <p id="game-subtitle">בחרו בתשובה השגויה כדי לזכות בנקודות!</p>
+    </div>
+    
+    <!-- מסך פתיחה -->
+    <div id="start-screen" class="visible">
+      <h2>ברוכים הבאים למשחק שבו השגיאה משתלמת!</h2>
+      <p style="margin: 15px 0 25px;">בחרו במצב המשחק הרצוי ותתחילו את הכיף!</p>
+      <div id="mode-selection">
+        <!-- כרטיס מצב קמפיין -->
+        <div class="game-mode-card" onclick="selectGameMode('campaign')">
+          <i class="fas fa-trophy"></i>
+          <h3>מצב קמפיין</h3>
+          <p>שחקו רמות מבוססות סיפור, עם אתגרים גוברים והולכים</p>
+          <button class="btn btn-primary">התחל קמפיין</button>
+        </div>
+        
+        <!-- כרטיס מצב אינסופי -->
+        <div class="game-mode-card" onclick="selectGameMode('infinity')">
+          <i class="fas fa-infinity"></i>
+          <h3>מצב אינסופי</h3>
+          <p>שחקו ללא הגבלה עם שאלות מתחלפות ורמת קושי עולה</p>
+          <button class="btn btn-primary">התחל משחק אינסופי</button>
+        </div>
+        
+        <!-- כרטיס אתגר זמן -->
+        <div class="game-mode-card" onclick="selectGameMode('timeChallenge')">
+          <i class="fas fa-stopwatch"></i>
+          <h3>אתגר זמן</h3>
+          <p>ענו על כמה שיותר שאלות ב-2 דקות!</p>
+          <button class="btn btn-primary">התחל אתגר זמן</button>
+        </div>
+        
+        <!-- כרטיס משחק רב-משתתפים -->
+        <div class="game-mode-card" onclick="selectGameMode('multi')">
+          <i class="fas fa-users"></i>
+          <h3>משחק קבוצתי</h3>
+          <p>התחרו עם חברים! מי יצבור הכי הרבה נקודות?</p>
+          <button class="btn btn-primary">התחל משחק קבוצתי</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- הגדרת שחקנים -->
+    <div id="players-setup">
+      <h2 id="players-setup-title">הכניסו את שמות השחקנים</h2>
+      <form id="player-form">
+        <div id="player-inputs"></div>
+        <div style="display: flex; justify-content: center; margin-top: 15px;">
+          <button type="button" class="btn btn-secondary" onclick="goBackToStart()"><i class="fas fa-arrow-right"></i> חזור</button>
+          <button type="button" class="btn btn-primary" onclick="startGame()">התחל משחק <i class="fas fa-play"></i></button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- אזור המשחק -->
+    <div id="game-area">
+      <div id="status-bar">
+        <div id="current-player">שחקן: <span id="player-name">שחקן 1</span></div>
+        <div id="score-display">ניקוד: <span id="current-score">0</span></div>
+      </div>
+      
+      <!-- תצוגה מיוחדת למצב אתגר זמן -->
+      <div id="time-challenge-timer" style="display: none;">2:00</div>
+      
+      <!-- כותרת פרק בקמפיין -->
+      <div id="campaign-info" style="display: none;">
+        <div class="chapter-title">פרק 1: השאלות הקלות</div>
+        <div class="chapter-description">בואו נתחיל בכמה שאלות פשוטות...</div>
+      </div>
+      
+      <!-- תצוגת התקדמות במצב אינסופי -->
+      <div id="infinity-progress" style="display: none;">
+        רמה: <span id="infinity-level">1</span>
+        <i class="fas fa-level-up-alt"></i>
+      </div>
+      
+      <div id="question-number">שאלה 1 מתוך 10</div>
+      
+      <div id="timer-bar">
+        <div id="timer-progress"></div>
+      </div>
+      
+      <div id="power-ups">
+        <div class="power-up" id="skip-question" onclick="useSkipPowerUp()">
+          <i class="fas fa-forward"></i>
+          <span class="power-up-tooltip">דלג על שאלה</span>
+        </div>
+        <div class="power-up" id="reverse-answers" onclick="useReverseAnswersPowerUp()">
+          <i class="fas fa-exchange-alt"></i>
+          <span class="power-up-tooltip">הפוך תשובות</span>
+        </div>
+        <div class="power-up" id="fifty-fifty" onclick="useFiftyFiftyPowerUp()">
+          <i class="fas fa-percentage"></i>
+          <span class="power-up-tooltip">50/50</span>
+        </div>
+      </div>
+      
+      <div id="question-container">
+        <div id="question-text"></div>
+        <div id="answers-container"></div>
+      </div>
+    </div>
+    
+    <!-- מסך תוצאות -->
+    <div id="results-screen">
+      <h2>המשחק הסתיים!</h2>
+      <div id="winner-announcement"></div>
+      <div id="scorecard"></div>
+      <div style="margin-top: 25px;">
+        <button class="btn btn-secondary" onclick="goBackToStart()"><i class="fas fa-home"></i> חזור למסך הראשי</button>
+        <button class="btn btn-primary" onclick="resetAndPlayAgain()"><i class="fas fa-redo"></i> שחק שוב</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // מאגר שאלות
+    const questionBank = [
+      // שאלות בסיסיות - קלות
+      {
+        question: "מה השם של היטלר?",
+        answers: ["אדולף היטלר", "אדולף שיקלגרובר", "היינריך היטלר", "בנימין היטלר"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "מתי פרצה מלחמת יום כיפור?",
+        answers: ["6 באוקטובר 1973", "25 בדצמבר 1973", "5 ביוני 1967", "1 באפריל 1974"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "איזו עיר יותר צפונית מחיפה?",
+        answers: ["נהריה", "תל אביב", "אשדוד", "ירושלים"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "באיזה חג אוכלים סופגניות?",
+        answers: ["חנוכה", "פסח", "סוכות", "פורים"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "ממה עשוי זהב?",
+        answers: ["יסוד כימי", "עלי כותרת", "חול מיוחד", "עשבי תיבול"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "איך עושה ינשוף?",
+        answers: ["הו-הו", "הב-הב", "מיאו", "מו-מו"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "מה הטלפון של המשטרה?",
+        answers: ["100", "101", "102", "911"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "מי זכה בגביע העולם בכדורגל 2022?",
+        answers: ["ארגנטינה", "ברזיל", "גרמניה", "צרפת"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "ציין מכה אחת מעשר המכות",
+        answers: ["דם", "רעידת אדמה", "הוריקן", "צונאמי"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "איך עושה חתול?",
+        answers: ["מיאו", "קוקוריקו", "הב-הב", "מו-מו"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "איזה פרי אדום?",
+        answers: ["תפוח", "בננה", "אבטיח", "אבוקדו"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      // שאלות נוספות
+      {
+        question: "מהי הבירה של צרפת?",
+        answers: ["פריז", "ליון", "מרסיי", "בורדו"],
+        correctIndex: 0,
+        difficulty: "medium"
+      },
+      {
+        question: "מי כתב את 'האיליאדה'?",
+        answers: ["הומרוס", "סופוקלס", "אופיפידס", "טריגוניס"],
+        correctIndex: 0,
+        difficulty: "medium"
+      },
+      {
+        question: "מהו המספר הראשון בטור הפיבונאצ'י?",
+        answers: ["0", "1", "2", "3"],
+        correctIndex: 1,
+        difficulty: "easy"
+      }
+    ];
+
+    // פונקציות דמה למניעת שגיאות (יש להחליף או להרחיב את הפונקציות בהתאם ללוגיקה הרצויה)
+    function selectGameMode(mode) {
+      console.log("מצב נבחר:", mode);
+      // הוסיפו כאן את הלוגיקה למעבר למצב המשחק הנבחר
+    }
+    function goBackToStart() {
+      console.log("חזרה למסך הראשי");
+      // הוסיפו כאן את הלוגיקה להחזרת המשתמש למסך הפתיחה
+    }
+    function startGame() {
+      console.log("המשחק התחיל");
+      // הוסיפו כאן את הלוגיקה להתחלת המשחק
+    }
+    function useSkipPowerUp() {
+      console.log("דלג על שאלה הופעל");
+      // הוסיפו כאן את הלוגיקה לשימוש בכוח-על זה
+    }
+    function useReverseAnswersPowerUp() {
+      console.log("הפוך תשובות הופעל");
+      // הוסיפו כאן את הלוגיקה לשימוש בכוח-על זה
+    }
+    function useFiftyFiftyPowerUp() {
+      console.log("50/50 הופעל");
+      // הוסיפו כאן את הלוגיקה לשימוש בכוח-על זה
+    }
+    function resetAndPlayAgain() {
+      console.log("איפוס משחק והתחלה מחדש");
+      // הוסיפו כאן את הלוגיקה לאיפוס והתחלת משחק חדש
+    }
+  </script>
+</body>
+</html>
+      --primary-color: #6a11cb;
+      --secondary-color: #2575fc;
+      --text-dark: #333;
+      --text-light: #fff;
+      --success-color: #4caf50;
+      --error-color: #f44336;
+      --warning-color: #ff9800;
+      --background-light: #f0f8ff;
+      --card-background: #fff;
+      --transition-speed: 0.3s;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--background-light);
+      background-image: linear-gradient(45deg, rgba(106, 17, 203, 0.05), rgba(37, 117, 252, 0.05));
+      margin: 0; padding: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; direction: rtl; overflow-x: hidden; color: var(--text-dark);
+    }
+    /* שאר קוד ה-CSS (העתק את הקוד שסיפקת) */
+    /* ... */
+  </style>
+</head>
+<body>
+  <!-- קנבס לאפקט קונפטי -->
+  <canvas id="confetti-canvas"></canvas>
+  
+  <div id="refreshing">טוען שאלות חדשות...</div>
+  
+  <div id="game-container">
+    <!-- שליטה במוסיקה -->
+    <div id="sound-controls">
+      <button class="sound-btn" id="toggle-music">
+        <i class="fas fa-volume-up"></i>
+      </button>
+    </div>
+    
+    <!-- כותרת המשחק -->
+    <div id="header">
+      <h1 id="game-title">משחק התשובות השגויות</h1>
+      <p id="game-subtitle">בחרו בתשובה השגויה כדי לזכות בנקודות!</p>
+    </div>
+    
+    <!-- מסך פתיחה -->
+    <div id="start-screen" class="visible">
+      <h2>ברוכים הבאים למשחק שבו השגיאה משתלמת!</h2>
+      <p style="margin: 15px 0 25px;">בחרו במצב המשחק הרצוי ותתחילו את הכיף!</p>
+      <div id="mode-selection">
+        <!-- כרטיס מצב קמפיין -->
+        <div class="game-mode-card" onclick="selectGameMode('campaign')">
+          <i class="fas fa-trophy"></i>
+          <h3>מצב קמפיין</h3>
+          <p>שחקו רמות מבוססות סיפור, עם אתגרים גוברים והולכים</p>
+          <button class="btn btn-primary">התחל קמפיין</button>
+        </div>
+        
+        <!-- כרטיס מצב אינסופי -->
+        <div class="game-mode-card" onclick="selectGameMode('infinity')">
+          <i class="fas fa-infinity"></i>
+          <h3>מצב אינסופי</h3>
+          <p>שחקו ללא הגבלה עם שאלות מתחלפות ורמת קושי עולה</p>
+          <button class="btn btn-primary">התחל משחק אינסופי</button>
+        </div>
+        
+        <!-- כרטיס אתגר זמן -->
+        <div class="game-mode-card" onclick="selectGameMode('timeChallenge')">
+          <i class="fas fa-stopwatch"></i>
+          <h3>אתגר זמן</h3>
+          <p>ענו על כמה שיותר שאלות ב-2 דקות!</p>
+          <button class="btn btn-primary">התחל אתגר זמן</button>
+        </div>
+        
+        <!-- כרטיס משחק רב-משתתפים -->
+        <div class="game-mode-card" onclick="selectGameMode('multi')">
+          <i class="fas fa-users"></i>
+          <h3>משחק קבוצתי</h3>
+          <p>התחרו עם חברים! מי יצבור הכי הרבה נקודות?</p>
+          <button class="btn btn-primary">התחל משחק קבוצתי</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- הגדרת שחקנים -->
+    <div id="players-setup">
+      <h2 id="players-setup-title">הכניסו את שמות השחקנים</h2>
+      <form id="player-form">
+        <div id="player-inputs"></div>
+        <div style="display: flex; justify-content: center; margin-top: 15px;">
+          <button type="button" class="btn btn-secondary" onclick="goBackToStart()"><i class="fas fa-arrow-right"></i> חזור</button>
+          <button type="button" class="btn btn-primary" onclick="startGame()">התחל משחק <i class="fas fa-play"></i></button>
+        </div>
+      </form>
+    </div>
+    
+    <!-- אזור המשחק -->
+    <div id="game-area">
+      <div id="status-bar">
+        <div id="current-player">שחקן: <span id="player-name">שחקן 1</span></div>
+        <div id="score-display">ניקוד: <span id="current-score">0</span></div>
+      </div>
+      
+      <!-- תצוגה מיוחדת למצב אתגר זמן -->
+      <div id="time-challenge-timer" style="display: none;">2:00</div>
+      
+      <!-- כותרת פרק בקמפיין -->
+      <div id="campaign-info" style="display: none;">
+        <div class="chapter-title">פרק 1: השאלות הקלות</div>
+        <div class="chapter-description">בואו נתחיל בכמה שאלות פשוטות...</div>
+      </div>
+      
+      <!-- תצוגת התקדמות במצב אינסופי -->
+      <div id="infinity-progress" style="display: none;">
+        רמה: <span id="infinity-level">1</span>
+        <i class="fas fa-level-up-alt"></i>
+      </div>
+      
+      <div id="question-number">שאלה 1 מתוך 10</div>
+      
+      <div id="timer-bar">
+        <div id="timer-progress"></div>
+      </div>
+      
+      <div id="power-ups">
+        <div class="power-up" id="skip-question" onclick="useSkipPowerUp()">
+          <i class="fas fa-forward"></i>
+          <span class="power-up-tooltip">דלג על שאלה</span>
+        </div>
+        <div class="power-up" id="reverse-answers" onclick="useReverseAnswersPowerUp()">
+          <i class="fas fa-exchange-alt"></i>
+          <span class="power-up-tooltip">הפוך תשובות</span>
+        </div>
+        <div class="power-up" id="fifty-fifty" onclick="useFiftyFiftyPowerUp()">
+          <i class="fas fa-percentage"></i>
+          <span class="power-up-tooltip">50/50</span>
+        </div>
+      </div>
+      
+      <div id="question-container">
+        <div id="question-text"></div>
+        <div id="answers-container"></div>
+      </div>
+    </div>
+    
+    <!-- מסך תוצאות -->
+    <div id="results-screen">
+      <h2>המשחק הסתיים!</h2>
+      <div id="winner-announcement"></div>
+      <div id="scorecard"></div>
+      <div style="margin-top: 25px;">
+        <button class="btn btn-secondary" onclick="goBackToStart()"><i class="fas fa-home"></i> חזור למסך הראשי</button>
+        <button class="btn btn-primary" onclick="resetAndPlayAgain()"><i class="fas fa-redo"></i> שחק שוב</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // מאגר שאלות
+    const questionBank = [
+      // שאלות בסיסיות - קלות
+      {
+        question: "מה השם של היטלר?",
+        answers: ["אדולף היטלר", "אדולף שיקלגרובר", "היינריך היטלר", "בנימין היטלר"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "מתי פרצה מלחמת יום כיפור?",
+        answers: ["6 באוקטובר 1973", "25 בדצמבר 1973", "5 ביוני 1967", "1 באפריל 1974"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "איזו עיר יותר צפונית מחיפה?",
+        answers: ["נהריה", "תל אביב", "אשדוד", "ירושלים"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "באיזה חג אוכלים סופגניות?",
+        answers: ["חנוכה", "פסח", "סוכות", "פורים"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "ממה עשוי זהב?",
+        answers: ["יסוד כימי", "עלי כותרת", "חול מיוחד", "עשבי תיבול"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "איך עושה ינשוף?",
+        answers: ["הו-הו", "הב-הב", "מיאו", "מו-מו"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "מה הטלפון של המשטרה?",
+        answers: ["100", "101", "102", "911"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "מי זכה בגביע העולם בכדורגל 2022?",
+        answers: ["ארגנטינה", "ברזיל", "גרמניה", "צרפת"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "ציין מכה אחת מעשר המכות",
+        answers: ["דם", "רעידת אדמה", "הוריקן", "צונאמי"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "איך עושה חתול?",
+        answers: ["מיאו", "קוקוריקו", "הב-הב", "מו-מו"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      {
+        question: "איזה פרי אדום?",
+        answers: ["תפוח", "בננה", "אבטיח", "אבוקדו"],
+        correctIndex: 0,
+        difficulty: "easy"
+      },
+      // שאלות נוספות
+      {
+        question: "מהי הבירה של צרפת?",
+        answers: ["פריז", "ליון", "מרסיי", "בורדו"],
+        correctIndex: 0,
+        difficulty: "medium"
+      },
+      {
+        question: "מי כתב את 'האיליאדה'?",
+        answers: ["הומרוס", "סופוקלס", "אופיפידס", "טריגוניס"],
+        correctIndex: 0,
+        difficulty: "medium"
+      },
+      {
+        question: "מהו המספר הראשון בטור הפיבונאצ'י?",
+        answers: ["0", "1", "2", "3"],
+        correctIndex: 1,
+        difficulty: "easy"
+      }
+    ];
+
+    // פונקציות דמה למניעת שגיאות (יש להחליף או להרחיב את הפונקציות בהתאם ללוגיקה הרצויה)
+    function selectGameMode(mode) {
+      console.log("מצב נבחר:", mode);
+      // הוסיפו כאן את הלוגיקה למעבר למצב המשחק הנבחר
+    }
+    function goBackToStart() {
+      console.log("חזרה למסך הראשי");
+      // הוסיפו כאן את הלוגיקה להחזרת המשתמש למסך הפתיחה
+    }
+    function startGame() {
+      console.log("המשחק התחיל");
+      // הוסיפו כאן את הלוגיקה להתחלת המשחק
+    }
+    function useSkipPowerUp() {
+      console.log("דלג על שאלה הופעל");
+      // הוסיפו כאן את הלוגיקה לשימוש בכוח-על זה
+    }
+    function useReverseAnswersPowerUp() {
+      console.log("הפוך תשובות הופעל");
+      // הוסיפו כאן את הלוגיקה לשימוש בכוח-על זה
+    }
+    function useFiftyFiftyPowerUp() {
+      console.log("50/50 הופעל");
+      // הוסיפו כאן את הלוגיקה לשימוש בכוח-על זה
+    }
+    function resetAndPlayAgain() {
+      console.log("איפוס משחק והתחלה מחדש");
+      // הוסיפו כאן את הלוגיקה לאיפוס והתחלת משחק חדש
+    }
+  </script>
+</body>
+</html>
